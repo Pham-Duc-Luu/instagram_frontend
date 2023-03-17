@@ -5,7 +5,7 @@ import Login from './components/Login';
 
 const App = () => {
     return (
-        <div>
+        <div className="font-mono	">
             <Routes>
                 <Route path="login" element={<Login />} />
                 <Route path="/*" element={<Home />} />

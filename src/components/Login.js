@@ -6,21 +6,18 @@ import { GoogleLogin } from '@react-oauth/google';
 import jwt_decode from 'jwt-decode';
 import { sanityClient } from '../client';
 import { useNavigate } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { login } from '../redux/actions';
 
-const Login = () => {
+const Login = (props) => {
     let navigate = useNavigate();
     const loginResponse = (credentialResponse) => {
-        // console.log(credentialResponse, jwt_decode(credentialResponse.credential));
         let userInfo = jwt_decode(credentialResponse.credential);
-        localStorage.setItem(
-            'user',
-
-            JSON.stringify({ ...credentialResponse, info: userInfo }),
-        );
-        let { name, picture } = userInfo;
+        localStorage.setItem('user', JSON.stringify({ ...credentialResponse, info: userInfo }));
+        let { name, picture, sub } = userInfo;
 
         const doc = {
-            _id: credentialResponse.clientId,
+            _id: sub,
             _type: 'user',
             userName: name,
             image: picture,
@@ -28,7 +25,6 @@ const Login = () => {
         };
 
         sanityClient.createIfNotExists(doc).then((res) => {
-            // console.log(res);
             return navigate('/');
         });
     };
@@ -60,4 +56,16 @@ const Login = () => {
     );
 };
 
-export default Login;
+const mapStateToProps = (state) => {
+    return {
+        user: state.user,
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        login: (data) => dispatch(login(data)),
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
